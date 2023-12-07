@@ -1,4 +1,6 @@
-import * as http from 'http'
+import * as https from 'https'
+import * as fs from 'fs'
+import 'dotenv/config'
 import express, { Express, Request, Response , Application } from 'express';
 import { Server, Socket } from 'socket.io';
 import { Game, color } from './Game';
@@ -6,17 +8,17 @@ import cors from 'cors';
 // import cors from 'cors';
 
 const app = express();
-const server = http.createServer(app);
+const privateKey  = fs.readFileSync('/home/charles/.vite-plugin-mkcert/dev.pem', 'utf8');
+const certificate = fs.readFileSync('/home/charles/.vite-plugin-mkcert/cert.pem', 'utf8');
+const credentials = {key: privateKey, cert: certificate};
+const server = https.createServer(credentials, app);
 const io = new Server(server, {
   cors: {
     origin: '*',
   }
 });
 
-// //For env File 
-// // dotenv.config();
-
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 app.use(cors())
 app.use(express.static('public'))
@@ -37,12 +39,15 @@ io.on('connection', (socket: Socket) => {
   })
 
   socket.on('roule', (data: { username:string, color: color, value: number }) => {
+    console.log(data)
     const user = game.getPlayerBySocketId(socket.id)
     if(!user) return
+    // console.log(user)
     user.distance += data.value
     const runner = game.getRunnerByColor(data.color)
+    if(!runner) return
     runner!.distance += data.value
-    console.log(runner, user)
+    // console.log(runner, user)
   })
 
   socket.on("disconnect", (reason: string) => {
@@ -53,9 +58,9 @@ io.on('connection', (socket: Socket) => {
 setInterval(() => {
   if(!game) return
   io.of("/leaderboard").emit("leaderboard", game.getLeaderboardData())
-}, 1000)
+}, 100)
 
-server.listen(3000, "192.168.201.137", 1000000, () => {
+server.listen(port, process.env.IP, () => {
   console.log(`Server is Fire at http://localhost:${port}`);
 });
 

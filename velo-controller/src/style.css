@@ -84,3 +84,18 @@ button:focus-visible {
 .hidden {
   display: none;
 }
+
+#debug {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 1rem;
+  background-color: #000000;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-family: monospace;
+  line-height: 1.2;
+  white-space: pre-wrap;
+  width: 100%;
+}
