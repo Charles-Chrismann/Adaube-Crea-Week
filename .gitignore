@@ -1,3 +1,6 @@
 node_modules
 
 .env
+
+velo-server/public/assets/*
+!velo-server/public/assets/.gitkeep
